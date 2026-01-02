@@ -2,10 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Score Keeper</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            touch-action: manipulation;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-2 sm:p-4">
     <div id="app">
@@ -31,7 +36,11 @@
                     <div class="text-center w-full">
                         <h3 class="font-semibold text-2xl truncate px-1">{{ player.name }}</h3>
                         <input 
-                            v-model.number="player.score"
+                            :value="player.score"
+                            @input="updateScore(player, $event)"
+                            type="text"
+                            inputmode="numeric"
+                            pattern="-?[0-9]*"
                             class="text-2xl sm:text-4xl font-bold text-blue-600 text-center w-full bg-transparent border-2 border-transparent hover:border-blue-300 focus:border-blue-500 focus:outline-none rounded px-2 py-1"
                         >
                     </div>
@@ -144,6 +153,22 @@
                 }
             },
             methods: {
+                updateScore(player, event) {
+                    const value = event.target.value;
+                    // Allow empty string, minus sign, or valid numbers (including negative)
+                    if (value === '' || value === '-') {
+                        event.target.value = player.score;
+                        return;
+                    }
+                    // Only update if it's a valid number
+                    const numValue = parseInt(value, 10);
+                    if (!isNaN(numValue)) {
+                        player.score = numValue;
+                    } else {
+                        // Reset input to current score if invalid
+                        event.target.value = player.score;
+                    }
+                },
                 addPlayer() {
                     if (this.newPlayerName.trim()) {
                         this.players.push({
