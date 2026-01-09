@@ -16,10 +16,10 @@
     <div id="app">
         <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-4 sm:p-6">
             <!-- Header with Buttons -->
-            <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex items-center justify-between gap-2 mb-4 sm:mb-6">
                 <button @click="showRemoveDialog = true"
                         v-if="players.length > 0"
-                        class="w-10 h-10 sm:w-12 sm:h-12 bg-red-500 text-white rounded-full hover:bg-red-600 active:bg-red-700 flex items-center justify-center">
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-red-500 text-white rounded-full hover:bg-red-600 active:bg-red-700 flex items-center justify-center flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 sm:w-7 sm:h-7">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
                     </svg>
@@ -28,10 +28,10 @@
                     v-model="gameTitle"
                     type="text"
                     placeholder="Game Title"
-                    class="text-2xl sm:text-3xl font-bold flex-1 text-center bg-transparent border-2 border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none rounded px-2 py-1"
+                    class="text-xl sm:text-3xl font-bold flex-1 min-w-0 text-center bg-transparent border-2 border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none rounded px-2 py-1"
                 >
                 <button @click="showAddDialog = true"
-                        class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 text-white rounded-full hover:bg-blue-600 active:bg-blue-700 flex items-center justify-center">
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 text-white rounded-full hover:bg-blue-600 active:bg-blue-700 flex items-center justify-center flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 sm:w-7 sm:h-7">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
                     </svg>
