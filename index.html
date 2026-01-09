@@ -38,44 +38,26 @@
                 </button>
             </div>
 
+            <!-- Current Game History Button -->
+            <button @click="showCurrentGameHistoryDialog = true" 
+                    v-if="players.length > 0 && currentGameHistory.length > 0"
+                    class="w-full mb-4 px-4 py-3 sm:py-2 bg-teal-600 text-white rounded hover:bg-teal-700 font-medium active:bg-teal-800">
+                Current Game History
+            </button>
+
             <!-- Players Grid -->
             <div class="grid grid-cols-2 gap-2 sm:gap-3">
                 <div v-for="player in players" :key="player.id" 
-                     class="flex flex-col items-center gap-2 p-2 sm:p-4 bg-gray-50 rounded">
+                     @click="openScoreDialog(player)"
+                     class="flex flex-col items-center gap-2 p-2 sm:p-4 bg-gray-50 rounded cursor-pointer hover:bg-gray-100 active:bg-gray-200">
                     <div class="text-center w-full">
                         <h3 class="font-semibold text-2xl truncate px-1">{{ player.name }}</h3>
-                        <input 
-                            :value="player.score"
-                            @input="updateScore(player, $event)"
-                            @blur="finalizeScore(player, $event)"
-                            type="text"
-                            inputmode="numeric"
-                            pattern="-?[0-9]*"
-                            :class="[
-                                'text-2xl sm:text-4xl font-bold text-center w-full bg-transparent border-2 border-transparent hover:border-blue-300 focus:border-blue-500 focus:outline-none rounded px-2 py-1',
-                                player.score < 0 ? 'text-red-600' : 'text-blue-600'
-                            ]"
-                        >
-                    </div>
-                    <div class="flex gap-1 sm:gap-2 w-full">
-                        <button @click="player.score = -player.score" 
-                                class="h-10 sm:h-12 w-12 bg-purple-500 text-white rounded hover:bg-purple-600 font-bold active:bg-purple-700 flex items-center justify-center flex-shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
-                            </svg>
-                        </button>
-                        <button @click="player.score--" 
-                                class="flex-1 h-10 sm:h-12 bg-red-500 text-white rounded hover:bg-red-600 active:bg-red-700 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 sm:w-7 sm:h-7">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
-                            </svg>
-                        </button>
-                        <button @click="player.score++" 
-                                class="flex-1 h-10 sm:h-12 bg-green-500 text-white rounded hover:bg-green-600 active:bg-green-700 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 sm:w-7 sm:h-7">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
-                        </button>
+                        <div :class="[
+                            'text-2xl sm:text-4xl font-bold text-center w-full py-1',
+                            player.score < 0 ? 'text-red-600' : 'text-blue-600'
+                        ]">
+                            {{ player.score }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,6 +104,57 @@
             </div>
         </div>
 
+        <!-- Score Change Dialog -->
+        <div v-if="showScoreDialog" 
+             @click="showScoreDialog = false"
+             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div @click.stop 
+                 class="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
+                <h2 class="text-xl font-bold mb-4">{{ selectedPlayer?.name }}</h2>
+                <div class="text-center mb-6">
+                    <div class="text-sm text-gray-600 mb-2">Current Score</div>
+                    <div :class="[
+                        'text-4xl font-bold',
+                        selectedPlayer?.score < 0 ? 'text-red-600' : 'text-blue-600'
+                    ]">
+                        {{ selectedPlayer?.score }}
+                    </div>
+                </div>
+                
+                <input 
+                    v-model.number="pointsToChange" 
+                    @keyup.enter="handleScoreChange"
+                    type="number"
+                    inputmode="numeric"
+                    placeholder="Enter points"
+                    class="w-full px-4 py-3 border rounded text-base mb-4"
+                    autofocus
+                >
+                
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button @click="subtractPoints" 
+                            class="px-4 py-3 bg-red-500 text-white rounded hover:bg-red-600 font-medium flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                        </svg>
+                        Subtract
+                    </button>
+                    <button @click="addPoints" 
+                            class="px-4 py-3 bg-green-500 text-white rounded hover:bg-green-600 font-medium flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        Add
+                    </button>
+                </div>
+                
+                <button @click="showScoreDialog = false"
+                        class="w-full px-4 py-3 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 font-medium">
+                    Close
+                </button>
+            </div>
+        </div>
+
         <!-- Remove Player Dialog -->
         <div v-if="showRemoveDialog" 
              @click="showRemoveDialog = false"
@@ -141,6 +174,77 @@
                 </div>
                 <button @click="showRemoveDialog = false"
                         class="w-full px-4 py-3 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 font-medium">
+                    Close
+                </button>
+            </div>
+        </div>
+
+        <!-- Current Game History Dialog -->
+        <div v-if="showCurrentGameHistoryDialog" 
+             @click="showCurrentGameHistoryDialog = false"
+             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div @click.stop 
+                 class="bg-white rounded-lg p-6 w-full max-w-4xl shadow-xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Current Game History</h2>
+                    <button @click="clearCurrentGameHistory"
+                            class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 font-medium active:bg-red-700">
+                        Clear
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div v-for="player in players" :key="player.id" class="flex flex-col border border-purple-200 border-2 rounded p-3">
+                        <!-- Player Name Header -->
+                        <div class="font-bold text-lg text-center mb-3 pb-2 border-b-2 border-gray-300">
+                            {{ player.name }}
+                        </div>
+                        
+                        <!-- Score History -->
+                        <div class="space-y-2">
+                            <template v-if="getPlayerHistory(player.id).length > 0">
+                                <template v-for="(entry, index) in getPlayerHistory(player.id)" :key="index">
+                                    <!-- Starting Score (only for first entry) -->
+                                    <div v-if="index === 0" class="text-center">
+                                        <div class="text-xl font-bold text-blue-600">{{ entry.previousScore }}</div>
+                                    </div>
+                                    
+                                    <!-- Change Amount -->
+                                    <div class="text-center">
+                                        <div v-if="entry.change > 0" class="text-lg font-semibold text-green-600">
+                                            +{{ entry.change }}
+                                        </div>
+                                        <div v-else-if="entry.change < 0" class="text-lg font-semibold text-red-600">
+                                            {{ entry.change }}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Divider Line -->
+                                    <div class="border-t border-gray-300 mx-4"></div>
+                                    
+                                    <!-- New Total -->
+                                    <div class="text-center mb-3">
+                                        <div :class="[
+                                            'text-xl font-bold',
+                                            entry.newScore < 0 ? 'text-red-600' : 'text-blue-600'
+                                        ]">
+                                            {{ entry.newScore }}
+                                        </div>
+                                    </div>
+                                </template>
+                            </template>
+                            <template v-else>
+                                <!-- No history for this player yet -->
+                                <div class="text-center text-gray-400 italic text-sm">
+                                    No changes yet
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <button @click="showCurrentGameHistoryDialog = false"
+                        class="w-full mt-4 px-4 py-3 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 font-medium">
                     Close
                 </button>
             </div>
@@ -230,35 +334,57 @@
                     showRemoveDialog: false,
                     showResetDialog: false,
                     showHistoryDialog: false,
-                    scoreHistory: []
+                    showCurrentGameHistoryDialog: false,
+                    showScoreDialog: false,
+                    selectedPlayer: null,
+                    pointsToChange: '',
+                    scoreHistory: [],
+                    currentGameHistory: []
                 }
             },
             methods: {
-                updateScore(player, event) {
-                    const value = event.target.value;
+                trackCurrentGameScore(playerId, previousScore, newScore) {
+                    const change = newScore - previousScore;
                     
-                    if (value === '') {
-                        return;
-                    }
+                    const entry = {
+                        timestamp: new Date().toLocaleString(),
+                        playerId: playerId,
+                        previousScore: previousScore,
+                        newScore: newScore,
+                        change: change
+                    };
                     
-                    if (value === '-') {
-                        return;
-                    }
-                    
-                    const numValue = parseInt(value, 10);
-                    if (!isNaN(numValue)) {
-                        player.score = numValue;
-                    } else {
-                        event.target.value = player.score;
+                    this.currentGameHistory.push(entry);
+                },
+                getPlayerHistory(playerId) {
+                    return this.currentGameHistory.filter(entry => entry.playerId === playerId);
+                },
+                openScoreDialog(player) {
+                    this.selectedPlayer = player;
+                    this.pointsToChange = '';
+                    this.showScoreDialog = true;
+                },
+                addPoints() {
+                    if (this.pointsToChange && !isNaN(this.pointsToChange) && this.pointsToChange > 0) {
+                        const previousScore = this.selectedPlayer.score;
+                        this.selectedPlayer.score += parseInt(this.pointsToChange);
+                        this.trackCurrentGameScore(this.selectedPlayer.id, previousScore, this.selectedPlayer.score);
+                        this.showScoreDialog = false;
+                        this.pointsToChange = '';
                     }
                 },
-                finalizeScore(player, event) {
-                    const value = event.target.value;
-                    
-                    if (value === '' || value === '-') {
-                        player.score = 0;
-                        event.target.value = 0;
+                subtractPoints() {
+                    if (this.pointsToChange && !isNaN(this.pointsToChange) && this.pointsToChange > 0) {
+                        const previousScore = this.selectedPlayer.score;
+                        this.selectedPlayer.score -= parseInt(this.pointsToChange);
+                        this.trackCurrentGameScore(this.selectedPlayer.id, previousScore, this.selectedPlayer.score);
+                        this.showScoreDialog = false;
+                        this.pointsToChange = '';
                     }
+                },
+                handleScoreChange() {
+                    // Default to adding on Enter key
+                    this.addPoints();
                 },
                 addPlayer() {
                     if (this.newPlayerName.trim()) {
@@ -295,12 +421,19 @@
                 confirmReset() {
                     this.saveSnapshot();
                     this.players.forEach(p => p.score = 0);
+                    this.currentGameHistory = [];
                     this.showResetDialog = false;
                 },
                 clearHistory() {
                     if (confirm('Are you sure you want to clear all score history?')) {
                         this.scoreHistory = [];
                         this.showHistoryDialog = false;
+                    }
+                },
+                clearCurrentGameHistory() {
+                    if (confirm('Are you sure you want to clear the current game history?')) {
+                        this.currentGameHistory = [];
+                        this.showCurrentGameHistoryDialog = false;
                     }
                 }
             },
@@ -320,6 +453,11 @@
                 if (savedHistory) {
                     this.scoreHistory = JSON.parse(savedHistory);
                 }
+
+                const savedCurrentGameHistory = localStorage.getItem('scorekeeper-current-game-history');
+                if (savedCurrentGameHistory) {
+                    this.currentGameHistory = JSON.parse(savedCurrentGameHistory);
+                }
             },
             watch: {
                 players: {
@@ -336,6 +474,12 @@
                 scoreHistory: {
                     handler(newHistory) {
                         localStorage.setItem('scorekeeper-history', JSON.stringify(newHistory));
+                    },
+                    deep: true
+                },
+                currentGameHistory: {
+                    handler(newHistory) {
+                        localStorage.setItem('scorekeeper-current-game-history', JSON.stringify(newHistory));
                     },
                     deep: true
                 }
