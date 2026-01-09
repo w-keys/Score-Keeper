@@ -122,6 +122,7 @@
                 </div>
                 
                 <input 
+                    id="scoreInput"
                     v-model.number="pointsToChange" 
                     @keyup.enter="handleScoreChange"
                     type="number"
@@ -363,6 +364,14 @@
                     this.selectedPlayer = player;
                     this.pointsToChange = '';
                     this.showScoreDialog = true;
+                    // Force focus on the input after the dialog renders
+                    this.$nextTick(() => {
+                        const input = document.querySelector('#scoreInput');
+                        if (input) {
+                            input.focus();
+                            input.select();
+                        }
+                    });
                 },
                 addPoints() {
                     if (this.pointsToChange && !isNaN(this.pointsToChange) && this.pointsToChange > 0) {
